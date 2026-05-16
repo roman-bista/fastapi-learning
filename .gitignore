@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+fastapienv/
+.env
+.DS_Store
