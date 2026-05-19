@@ -1,4 +1,7 @@
+from typing import Optional
+
 from fastapi import FastAPI
+from  pydantic import BaseModel,Field
 app=FastAPI()
 
 class Book:
@@ -15,7 +18,23 @@ class Book:
         self.description=description
         self.rating=rating
 
+class BookRequest(BaseModel):
+    id: Optional[int]= Field(description="ID is not needed on create",default=None) 
+    title: str=Field(min_length=3)
+    author: str= Field(min_length=1)
+    description: str=Field(min_length=1, max_length=100)
+    rating: int=Field(gt=-1,lt=6)
 
+    model_config={
+        "json_schema_extra":{
+            "example":{
+                "title":"a new book",
+                "author":"a new description",
+                "rating":3
+            }
+        }
+    }
+ 
 BOOKS=[
     Book(1, 'comp science pro', 'coding with ruby', ' a very nice book!',5),
     Book(2, 'be fast with fastapi','coding with ruby', ' a great book!',5),
@@ -27,3 +46,48 @@ BOOKS=[
 @app.get("/books")
 async def read_all_books():
     return BOOKS
+
+@app.get("/books/{book_id}")
+async def read_book(book_id: int):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+
+@app.get("/books/")
+async def read_book_by_rating(book_rating: int):
+    filtered_book=[]
+    for book in BOOKS:
+        if book.rating == book_rating:
+            filtered_book.append(book)
+    return filtered_book
+
+@app.post("/create-book")
+async def create_book(book_request: BookRequest):
+    new_book = Book(**book_request.model_dump())
+    BOOKS.append(find_book_id(new_book))
+
+@app.put("/books/update_book")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i]=book
+
+@app.delete("/books/{book_id}")
+async def delete_book(book_id: int):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            break
+
+def find_book_id(book: Book):                       #The parameter "book" should be a Book object
+   book.id= 1 if len(BOOKS)==0 else BOOKS[-1].id + 1
+   return book
+    # if len(BOOKS)>0:
+    #     book.id=BOOKS[-1].id+1
+    # else:
+    #     book.id=1
+    # return book
+
+# /////////   /////////////   //////////////
+# Pydantic is a Python library used for data validation, parsing, and settings management using Python type hints.
+# /////////////////////////////////   /   /
