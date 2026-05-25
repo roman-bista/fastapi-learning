@@ -18,7 +18,7 @@ from sqlalchemy.orm import sessionmaker                         #temporary conve
 from sqlalchemy.ext.declarative import declarative_base         #creates base class for SQLAlchemy models.
 
 
-SQLALCHEMY_DATABASE_URL='sqlite:///./todos.db'                   #Tell SQLAlchemy which database to use
+SQLALCHEMY_DATABASE_URL='sqlite:///./todosapp.db'                   #Tell SQLAlchemy which database to use
 
 
 engine= create_engine(SQLALCHEMY_DATABASE_URL, connect_args={'check_same_thread': False}) 
