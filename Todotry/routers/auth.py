@@ -50,7 +50,14 @@ async def login(req: LoginRequest,db: Session = Depends(get_db)):
         raise HTTPException( status_code=401, detail="Invalid username or password" )
     
     password_matches = bcrypt_context.verify( req.password, user.hashed_password )
-    
+
     if not password_matches: 
         raise HTTPException( status_code=401, detail="Invalid username or password" ) 
     return { "message": "Login successful" }
+
+# @router.post("/token")
+# async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db : db_dependency):
+#     user=authenticate_user(form_data.username,form_data.password, db)
+#     if not user:
+#         return 'failed authentication'
+#     return 'sucessful authentication' 
