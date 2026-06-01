@@ -7,7 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, status,Path #Import model
 from models import Todos
 from database import SessionLocal   #Import database connection engine and session factory    
 
-router=APIRouter()          
+router = APIRouter(
+    prefix="/todos",
+    tags=["todos"]
+)         
 
 
 
@@ -64,7 +67,7 @@ class TodoRequest(BaseModel):       #BaseModel :automatically provides validatio
 async def read_all(db: db_dependency, ):
     return db.query(Todos).all()                         #SELECT * FROM todos;
 
-@router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)     #return http 200 on sucess
+@router.get("/{todo_id}", status_code=status.HTTP_200_OK)     #return http 200 on sucess
 async def read_todo(db: db_dependency, todo_id: int=Path(gt=0)):
     todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
 
@@ -73,12 +76,13 @@ async def read_todo(db: db_dependency, todo_id: int=Path(gt=0)):
     
     raise HTTPException(status_code=404, detail="todo does not exist")  #If todo not found,return HTTperroresponse
 
-@router.post("/todo", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_todo(db: db_dependency, todo_request: TodoRequest):
     todo_model = Todos(**todo_request.model_dump())
     db.add(todo_model)
     db.commit()
-@router.put("/todo/{todo_id}",status_code=status.HTTP_204_NO_CONTENT)
+    
+@router.put("/{todo_id}",status_code=status.HTTP_204_NO_CONTENT)
 async def update_todo(db: db_dependency, 
                       todo_request: TodoRequest,
                       todo_id: int=Path(gt=0), 
@@ -94,7 +98,7 @@ async def update_todo(db: db_dependency,
     db.add(todo_model)
     db.commit()
 
-@router.delete("/todo/{todo_id}",status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{todo_id}",status_code=status.HTTP_204_NO_CONTENT)
 async def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
     todo_model= db.query(Todos).filter(Todos.id== todo_id).first()
     if todo_model is None:
