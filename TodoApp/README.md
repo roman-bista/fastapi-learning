@@ -651,3 +651,137 @@ Identify Current User
 Authorize Request
     ↓
 Allow Access
+
+Authentication = Who are you?
+
+Authorization = What are you allowed to do?
+
+
+
+<<-------------------------------------------->><<-------------------------------------------->>
+<<-------------------------------------------->><<-------------------------------------------->>
+
+
+db_dependency
+      ↓
+get_db()
+      ↓
+Database Session
+      ↓
+CRUD Operations
+
+
+user_dependency=Before running my route,
+run get_current_user()
+and give me the authenticated user's information.
+      ↓
+get_current_user()
+      ↓
+Decode JWT
+      ↓
+Current User
+      ↓
+Authorization
+
+
+Request Body
+      ↓
+todo_request
+      ↓
+model_dump()
+      ↓
+{
+ title: "...",
+ description: "...",
+ priority: 5,
+ complete: False
+}
+      ↓
+** unpack
+      ↓
+Todos(
+ title="...",
+ description="...",
+ priority=5,
+ complete=False,
+ owner_id=1
+)
+      ↓
+todo_model
+      ↓
+db.add()
+      ↓
+db.commit()
+      ↓
+Database Row
+
+
+<<-------------------------------------------->><<-------------------------------------------->>
+<<---------------------------------------->><<-------------------------------------------->>
+
+
+Real Example:
+
+Roman logs in.
+
+JWT contains:
+
+{
+    "sub": "roman",
+    "id": 1
+}
+
+get_current_user() returns:
+
+{
+    "username": "roman",
+    "user_id": 1
+}
+
+Roman sends:
+
+{
+    "title": "Learn JWT",
+    "description": "Practice auth",
+    "priority": 5,
+    "complete": false
+}
+
+Your code creates:
+
+Todos(
+    title="Learn JWT",
+    description="Practice auth",
+    priority=5,
+    complete=False,
+    owner_id=1
+)
+
+Notice:
+
+owner_id = 1
+
+came from the authenticated user, not from the request body.
+
+This is Authorization
+Authentication
+↓
+Who are you?
+↓
+Roman (user_id=1)
+
+Authorization
+↓
+Create todo
+↓
+Automatically assign
+owner_id = 1
+
+Now later:
+
+db.query(Todos).filter(
+    Todos.owner_id ==
+    current_user["user_id"]
+)
+
+Roman only sees Roman's todos.
