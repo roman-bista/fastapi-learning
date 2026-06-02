@@ -7,7 +7,10 @@ models.Base.metadata.create_all(bind=engine)
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/todos",
+    tags=["Todos"]
+)
 
 def get_db():                   #get_db()=opening session,giving session,closing session
     db = SessionLocal()         #Open a database session
