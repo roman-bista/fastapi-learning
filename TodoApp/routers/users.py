@@ -2,8 +2,8 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, status,Path #Import models so SQLAlchemy knows which tables exist
-from models import Todos,Users
-from database import SessionLocal   #Import database connection engine and session factory    
+from ..models import Todos,Users
+from ..database import SessionLocal   #Import database connection engine and session factory    
 from .auth import get_current_user
 from passlib.context import CryptContext
  

@@ -1,787 +1,272 @@
+# TodoApp API
+
+A production-style Todo Management API built with FastAPI, PostgreSQL, SQLAlchemy, Alembic, JWT Authentication, and Pytest.
+
+## Features
+
+### Authentication
+
+* User Registration
+* User Login
+* JWT Token Authentication
+* Password Hashing with Passlib
+* Protected Routes
+
+### Todo Management
+
+* Create Todo
+* Read Todos
+* Update Todo
+* Delete Todo
+* User-specific Todos
+
+### Administration
+
+* Admin Routes
+* Role-based Authorization
+
+### Database
+
+* PostgreSQL Database
+* SQLAlchemy ORM
+* Alembic Database Migrations
+
+### Testing
+
+* Pytest
+* FastAPI TestClient
+* Health Check Endpoint Testing
+* Test Database Configuration
+
+---
+
+## Tech Stack
+
+* Python 3.12
+* FastAPI
+* PostgreSQL
+* SQLAlchemy
+* Alembic
+* Passlib
+* JWT Authentication
+* Pytest
+* Uvicorn
+
+---
+
+## Project Structure
+
+```text
+TodoApp/
+│
+├── alembic/
+│   └── versions/
+│
+├── routers/
+│   ├── auth.py
+│   ├── todos.py
+│   ├── admin.py
+│   └── users.py
+│
+├── test/
+│   ├── conftest.py
+│   ├── test_main.py
+│   ├── test_todos.py
+│   └── test_example.py
+│
+├── main.py
+├── database.py
+├── models.py
+├── alembic.ini
+├── pytest.ini
+├── README.md
+└── LEARNING.md
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd TodoApp
+```
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate the virtual environment:
+
+### macOS/Linux
+
+```bash
+source .venv/bin/activate
+```
+
+### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Database Configuration
+
+Create PostgreSQL database:
+
+```sql
+CREATE DATABASE TodoApplicationDatabase;
+```
+
+Configure your database connection in:
+
+```python
 database.py
-→ creates DB connection
-
-models.py
-→ defines tables
-
-main.py
-→ starts FastAPI app and defines routes
-
-Concept Purpose
-
-engine------------> manages DB connectivity
-Base--------------> parent class for ORM models
-models------------> define tables
-create_all()------> create tables
-Session ---------> active DB conversation
-SessionLocal------> creates DB sessions
-Column------------> define fields
-
-database.py → DB infrastructure
-models.py → table structure
-main.py → API logic/routes
-todos.db → actual stored data
-
-
-# JWT Authentication Flow in FastAPI
-
-## What is JWT?
-
-JWT (JSON Web Token) is used for authentication.
-
-After a user logs in successfully, the server generates a token and sends it to the client.
-
-The client stores the token and sends it with future requests.
-
-------------------------------------------------------------------------------------------
-
-# Complete JWT Flow
-
-```text
-Login
-  ↓
-Verify Username & Password
-  ↓
-Create JWT
-  ↓
-Return Token
-  ↓
-Frontend Stores Token
-  ↓
-Frontend Sends Token
-  ↓
-get_current_user()
-  ↓
-Decode JWT
-  ↓
-Get User
-  ↓
-Access Protected Route
-```
-
----
-
-# Step 1: User Login
-
-Frontend sends:
-
-```http
-POST /token
-```
-
-Request:
-
-```json
-{
-  "username": "roman",
-  "password": "password123"
-}
-```
-
----
-
-# Step 2: Authenticate User
-
-```python
-user = authenticate_user(
-    username,
-    password,
-    db
-)
-```
-
-Checks:
-
-* User exists
-* Password matches bcrypt hash
-
-If invalid:
-
-```python
-raise HTTPException(
-    status_code=401,
-    detail="Invalid username or password"
-)
-```
-
----
-
-# Step 3: Create JWT
-
-```python
-token = create_access_token(
-    user.username,
-    user.id,
-    timedelta(minutes=20)
-)
-```
-
-Payload:
-
-```json
-{
-  "sub": "roman",
-  "id": 1,
-  "exp": "expiration time"
-}
-```
-
-JWT Structure:
-
-```text
-HEADER.PAYLOAD.SIGNATURE
 ```
 
 Example:
 
-```text
-eyJhbGciOiJIUzI1NiIs...
-```
-
----
-
-# Step 4: Return Token
-
-Backend returns:
-
-```json
-{
-  "access_token": "eyJhbGc...",
-  "token_type": "bearer"
-}
-```
-
----
-
-# Step 5: Frontend Stores Token
-
-Example:
-
-```javascript
-localStorage.setItem("token", token)
-```
-
----
-
-# Step 6: Frontend Sends Token
-
-Every protected request:
-
-```http
-GET /todos
-Authorization: Bearer eyJhbGc...
-```
-
----
-
-# Step 7: Extract Token
-
 ```python
-oauth2_bearer = OAuth2PasswordBearer(
-    tokenUrl="token"
-)
-```
-
-Protected route:
-
-```python
-token: str = Depends(oauth2_bearer)
-```
-
-FastAPI automatically extracts:
-
-```text
-eyJhbGc...
-```
-
-from:
-
-```http
-Authorization: Bearer eyJhbGc...
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@localhost/TodoApplicationDatabase"
 ```
 
 ---
 
-# Step 8: Decode JWT
+## Alembic Migrations
 
-```python
-payload = jwt.decode(
-    token,
-    SECRET_KEY,
-    algorithms=[ALGORITHM]
-)
-```
-
-Extract:
-
-```python
-username = payload.get("sub")
-user_id = payload.get("id")
-```
-
----
-
-# Step 9: Get Current User
-
-```python
-async def get_current_user(
-    token: Annotated[str, Depends(oauth2_bearer)]
-):
-```
-
-Decode token and return:
-
-```python
-{
-    "username": username,
-    "user_id": user_id
-}
-```
-
-or fetch user from database.
-
----
-
-# Step 10: Protected Routes
-
-```python
-@router.get("/todos")
-async def get_todos(
-    current_user = Depends(get_current_user)
-):
-    return {"message": "Protected Route"}
-```
-
-Only authenticated users can access.
-
----
-
-# Important Components
-
-## SECRET_KEY
-
-Used to sign JWTs.
-
-Generate:
+Generate migration:
 
 ```bash
-openssl rand -hex 32
+alembic revision --autogenerate -m "message"
 ```
 
-Example:
-
-```python
-SECRET_KEY = "random_secret_key"
-```
-
----
-
-## ALGORITHM
-
-Usually:
-
-```python
-ALGORITHM = "HS256"
-```
-
----
-
-## Expiration Time
-
-```python
-expires = datetime.now(timezone.utc) + timedelta(minutes=20)
-```
-
-Token becomes invalid after 20 minutes.
-
----
-
-# FastAPI JWT Packages
-
-Install:
+Apply migration:
 
 ```bash
-pip install "python-jose[cryptography]"
-pip install passlib[bcrypt]
-pip install python-multipart
+alembic upgrade head
+```
+
+Rollback one migration:
+
+```bash
+alembic downgrade -1
+```
+
+View migration history:
+
+```bash
+alembic history
 ```
 
 ---
 
-# Key Interview Questions
+## Running the Application
 
-## Authentication vs Authorization
+From the parent directory:
 
-Authentication:
-
-```text
-Who are you?
+```bash
+uvicorn TodoApp.main:app --reload
 ```
 
-Example:
+API Documentation:
 
 ```text
-Login
+http://127.0.0.1:8000/docs
 ```
 
-Authorization:
+ReDoc Documentation:
 
 ```text
-What are you allowed to access?
-```
-
-Example:
-
-```text
-Admin Dashboard
-User Dashboard
+http://127.0.0.1:8000/redoc
 ```
 
 ---
 
-# Mental Model
+## Health Check Endpoint
 
+Endpoint:
 
-User Login
-    ↓
-Verify Credentials
-    ↓
-Create JWT
-    ↓
-Return JWT
-    ↓
-Store JWT
-    ↓
-Send JWT
-    ↓
-Decode JWT
-    ↓
-Identify User
-    ↓
-Allow Access
+```http
+GET /healthy
 ```
 
-If you understand this flow, you understand the core of JWT Authentication in FastAPI.
-Request arrives
-      ↓
-Extract token
-      ↓
-Verify signature using SECRET_KEY
-      ↓
-Check expiration (exp)
-      ↓
-Decode payload
-      ↓
-Get user_id and username
-      ↓
-Allow access
+Response:
 
-
-Login
-username/password
-       ↓
-create_access_token()
-       ↓
-JWT token
-Protected Route
-JWT token
-      ↓
-oauth2_bearer
-      ↓
-get_current_user()
-      ↓
-jwt.decode()
-      ↓
-username + user_id
-
-
-Client Login
-    ↓
-create_access_token()
-    ↓
-JWT Token
-    ↓
-Client stores token
-    ↓
-GET /todos
-Authorization: Bearer eyJhbGc...
-    ↓
-get_current_user()
-
-
-so the flow of get_current_user() is
-token arrives
-      ↓
-jwt.decode(...)
-      ↓
-payload
-      ↓
-payload.get("sub")
-payload.get("id")
-      ↓
-username + user_id
-
-
-
-<<-------------------------------------------->><<-------------------------------------------->>
-<<-------------------------------------------->><<-------------------------------------------->>
-
-
-
-USER REGISTRATION
-=================
-
-POST /auth/
-    ↓
-Receive username, password, email
-    ↓
-Hash password using bcrypt
-    ↓
-Store Worker in database
-    ↓
-User created
-
-
---------------------------------------------------
-
-
-USER LOGIN
-==========
-
-POST /auth/token
-    ↓
-Receive username + password
-    ↓
-Find Worker in database
-    ↓
-Verify password using bcrypt
-    ↓
-If invalid
-    ↓
-401 Unauthorized
-
-If valid
-    ↓
-create_access_token()
-    ↓
-Calculate expiration time
-    ↓
-Create payload
-
+```json
 {
-    "sub": username,
-    "id": user_id,
-    "exp": expires
+    "status": "Healthy"
 }
+```
 
-    ↓
-jwt.encode(
-    payload,
-    SECRET_KEY,
-    algorithm=ALGORITHM
-)
+---
 
-    ↓
-JWT Token Generated
+## Running Tests
 
-eyJhbGciOiJIUzI1NiIs...
+Run all tests:
 
-    ↓
-Return
+```bash
+pytest
+```
 
-{
-    "access_token": "...",
-    "token_type": "bearer"
-}
+Verbose output:
 
-    ↓
-Client stores JWT
+```bash
+pytest -v
+```
 
+Current tests include:
 
---------------------------------------------------
+* Pytest Basics
+* Health Check Endpoint Testing
+* FastAPI TestClient Testing
+* Test Database Configuration
 
+---
 
-PROTECTED REQUEST
-=================
+## Learning Objectives
 
-GET /todos
-Authorization: Bearer eyJhbGc...
+This project is part of my Backend Engineering learning journey.
 
-    ↓
-Request arrives
+Topics covered:
 
-    ↓
-OAuth2PasswordBearer
+* Python
+* FastAPI
+* PostgreSQL
+* SQLAlchemy
+* Alembic
+* JWT Authentication
+* API Development
+* Database Design
+* Testing with Pytest
 
-Authorization: Bearer eyJhbGc...
-                ↓
-Extract token
-                ↓
+Upcoming Topics:
 
-token = "eyJhbGc..."
+* CRUD Route Testing
+* Authentication Testing
+* Database Testing
+* Docker
+* Deployment
+* CI/CD
+* System Design
 
-    ↓
-Pass token to
+---
 
-get_current_user(token)
+## Author
 
-    ↓
-jwt.decode(
-    token,
-    SECRET_KEY,
-    algorithms=[ALGORITHM]
-)
+Roman Bista
 
-    ↓
-Verify Signature
+Backend Engineering Learning Journey
 
-Is SECRET_KEY valid?
-    ↓
-Yes / No
-
-    ↓
-Check Expiration
-
-exp > current_time ?
-    ↓
-Yes / No
-
-    ↓
-Decode Payload
-
-{
-    "sub": "roman",
-    "id": 1,
-    "exp": ...
-}
-
-    ↓
-Extract Values
-
-username = payload.get("sub")
-user_id = payload.get("id")
-
-    ↓
-Check
-
-username is None?
-user_id is None?
-
-    ↓
-If invalid
-401 Unauthorized
-
-    ↓
-If valid
-
-return {
-    "username": username,
-    "user_id": user_id
-}
-
-    ↓
-current_user
-
-
---------------------------------------------------
-
-
-AUTHORIZATION
-=============
-
-Route receives:
-
-current_user = Depends(
-    get_current_user
-)
-
-    ↓
-
-{
-    "username": "roman",
-    "user_id": 1
-}
-
-    ↓
-
-Filter todos
-
-db.query(Todos).filter(
-    Todos.owner_id ==
-    current_user["user_id"]
-)
-
-    ↓
-
-Roman only sees Roman's todos
-
-
---------------------------------------------------
-
-
-COMPLETE JWT FLOW
-=================
-
-Login
-    ↓
-Verify Credentials
-    ↓
-Create JWT
-    ↓
-Return JWT
-    ↓
-Client Stores JWT
-    ↓
-Client Sends JWT
-    ↓
-OAuth2PasswordBearer Extracts JWT
-    ↓
-get_current_user()
-    ↓
-Verify SECRET_KEY Signature
-    ↓
-Check Expiration
-    ↓
-Decode Payload
-    ↓
-Get Username + User ID
-    ↓
-Identify Current User
-    ↓
-Authorize Request
-    ↓
-Allow Access
-
-Authentication = Who are you?
-
-Authorization = What are you allowed to do?
-
-
-
-<<-------------------------------------------->><<-------------------------------------------->>
-<<-------------------------------------------->><<-------------------------------------------->>
-
-
-db_dependency
-      ↓
-get_db()
-      ↓
-Database Session
-      ↓
-CRUD Operations
-
-
-user_dependency=Before running my route,
-run get_current_user()
-and give me the authenticated user's information.
-      ↓
-get_current_user()
-      ↓
-Decode JWT
-      ↓
-Current User
-      ↓
-Authorization
-
-
-Request Body
-      ↓
-todo_request
-      ↓
-model_dump()
-      ↓
-{
- title: "...",
- description: "...",
- priority: 5,
- complete: False
-}
-      ↓
-** unpack
-      ↓
-Todos(
- title="...",
- description="...",
- priority=5,
- complete=False,
- owner_id=1
-)
-      ↓
-todo_model
-      ↓
-db.add()
-      ↓
-db.commit()
-      ↓
-Database Row
-
-
-<<-------------------------------------------->><<-------------------------------------------->>
-<<---------------------------------------->><<-------------------------------------------->>
-
-
-Real Example:
-
-Roman logs in.
-
-JWT contains:
-
-{
-    "sub": "roman",
-    "id": 1
-}
-
-get_current_user() returns:
-
-{
-    "username": "roman",
-    "user_id": 1
-}
-
-Roman sends:
-
-{
-    "title": "Learn JWT",
-    "description": "Practice auth",
-    "priority": 5,
-    "complete": false
-}
-
-Your code creates:
-
-Todos(
-    title="Learn JWT",
-    description="Practice auth",
-    priority=5,
-    complete=False,
-    owner_id=1
-)
-
-Notice:
-
-owner_id = 1
-
-came from the authenticated user, not from the request body.
-
-This is Authorization
-Authentication
-↓
-Who are you?
-↓
-Roman (user_id=1)
-
-Authorization
-↓
-Create todo
-↓
-Automatically assign
-owner_id = 1
-
-Now later:
-
-db.query(Todos).filter(
-    Todos.owner_id ==
-    current_user["user_id"]
-)
-
-Roman only sees Roman's todos.
+Nepal 🇳🇵

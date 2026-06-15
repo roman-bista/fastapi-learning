@@ -1,17 +1,17 @@
 # Starts FastAPI app and tells SQLAlchemy:“Create tables in database.” define routes
 
 from typing import Annotated
-from routers import auth, todos, admin, users
+from .routers import auth, todos, admin, users
 # from pydantic import BaseModel, Field
 # from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, status,Path #Import models so SQLAlchemy knows which tables exist
-from models import Todos
-from database import engine, SessionLocal   #Import database connection engine and session factory
-import models    
+from .models import Todos
+from .database import engine, SessionLocal   #Import database connection engine and session factory
+from .models import Base    
 
 app=FastAPI()          
 
-models.Base.metadata.create_all(bind=engine)        #Take all SQLAlchemy models
+Base.metadata.create_all(bind=engine)        #Take all SQLAlchemy models
                                                     # ↓
                                                     # Convert Python classes into SQL tables
                                                     # ↓
@@ -20,6 +20,10 @@ models.Base.metadata.create_all(bind=engine)        #Take all SQLAlchemy models
 # engine = object that knows how to connect to database Engine = connection manager
 # Session = active conversation
 # SessionLocal=Creates database sessions
+
+@app.get("/healthy")
+def health_check():
+    return {'status': 'Healthy'}
 
 app.include_router(auth.router)
 app.include_router(todos.router)
