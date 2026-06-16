@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine,text
+from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from ..database import Base
 from sqlalchemy.orm import sessionmaker
@@ -7,23 +7,6 @@ from TodoApp.main import app
 import pytest
 from ..models import Todos
 from ..routers.todos import get_current_user,get_db
-
-
-def override_get_current_user():
-    return {'username': 'codingwithroman',
-            'user_id':1,
-            'user_role':'admin'}
-
-def override_get_db():        # Override FastAPI's get_db dependency
-                              # so tests use SQLite instead of PostgreSQL.
-    db = TestingSessionLocal()                  
-    try:
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-app.dependency_overrides[get_current_user] = override_get_current_user
 
 SQLALCHEMY_DATABASE_URL= "sqlite:///./testdb.db"                    #Create a Test Database
 
@@ -35,12 +18,28 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False,bind=engine
 Base.metadata.create_all(bind=engine)                                           #Creates all tables in the test database.
 
 
+
+def override_get_db():        # Override FastAPI's get_db dependency
+                              # so tests use SQLite instead of PostgreSQL.
+    db = TestingSessionLocal()                  
+    try:
+        yield db
+    finally:
+        db.close()
+
 def override_get_current_user():
     return {'username': 'codingwithroman',
             'user_id':1,
-            'user_role':'admin'} 
+            'user_role':'admin'}
+
+
+
+app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user] = override_get_current_user
+
 
 client=TestClient(app)
+
 
 
 @pytest.fixture
