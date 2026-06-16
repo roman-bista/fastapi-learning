@@ -1,2 +1,36 @@
 from .utils import *
-from ..routers.admin import get_db,get_current_user
+from ..routers.admin import get_db,get_current_user 
+from fastapi import status
+from .utils import TestingSessionLocal
+
+db = TestingSessionLocal()
+print("TEST DB TODOS:", db.query(Todos).count())
+
+
+
+
+def override_get_db():        # Override FastAPI's get_db dependency
+                              # so tests use SQLite instead of PostgreSQL.
+    db = TestingSessionLocal()                  
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user] = override_get_current_user
+
+
+def test_admin_read_all_authenticated(test_todo):
+    response = client.get("/admin/todo")
+    assert response.status_code == status.HTTP_200_OK
+    print(response.json())
+    assert response.json()==[{
+        "title":"learn to code",
+        "description":"need to learn everyday",
+        "priority":5,
+        "id":1,
+        "complete":False,
+        "owner_id":1
+    }]

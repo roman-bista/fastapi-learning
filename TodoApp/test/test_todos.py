@@ -2,8 +2,23 @@
 from fastapi import status
 from ..models import Todos
 from .utils import *
+from ..routers.todos import get_current_user,get_db
 
 
+
+
+
+def override_get_db():        # Override FastAPI's get_db dependency
+                              # so tests use SQLite instead of PostgreSQL.
+    db = TestingSessionLocal()                  
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user] = override_get_current_user
 
 
 

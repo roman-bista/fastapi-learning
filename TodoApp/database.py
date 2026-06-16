@@ -36,10 +36,7 @@ with engine.connect() as conn:
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False,bind=engine)   
 #This creates sessions for database operations.
-
-Base=declarative_base()                                          #This is parent class for database models.
-
-
+Base = declarative_base()
 
 
 # Engine =  knows how to communicate with DB
