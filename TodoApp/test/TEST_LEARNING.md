@@ -563,7 +563,7 @@ override_get_db()
 TestingSessionLocal()
    ↓
 SQLite testdb.db
-
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 <!-- /////////////////////////////// -->
 
 Create Test Database
@@ -636,7 +636,7 @@ override_get_db()
    ↓
 SQLite Test DB
 
-
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 <!-- /////////////////////////////////////// -->
 
@@ -669,3 +669,75 @@ print(response.json())
 
 assert response.json()["title"] == "Learn FastAPI"
 assert response.json() == expected_data
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 get_db() & override_get_db()
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Definition:
+- get_db() creates a database session and provides it to FastAPI routes.
+- override_get_db() replaces get_db() during testing to use testdb.db.
+
+Key Points:
+- Creates a DB session using SessionLocal().
+- Allows CRUD operations inside routes.
+- Uses yield to provide the session.
+- Automatically closes the session after the request.
+- override_get_db() makes tests use SQLite testdb.db instead of PostgreSQL.
+
+Example:
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+Flow:
+Request
+   ↓
+get_db()
+   ↓
+DB Session (db)
+   ↓
+CRUD Operations
+   ↓
+db.close()
+
+Remember:
+- get_db() = Open DB session → Use DB → Close DB session.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 Password Hashing (bcrypt)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Definition:
+- Converts a plain password into a secure hashed string before storing it in the database.
+
+Key Points:
+- Never store plain passwords.
+- bcrypt adds a random salt automatically.
+- Same password produces different hashes.
+- Use verify() during login.
+
+Example:
+hashed_password = bcrypt_context.hash("roman")
+
+bcrypt_context.verify(
+    "roman",
+    hashed_password
+)  # True
+
+Flow:
+Password
+   ↓
+bcrypt.hash()
+   ↓
+Hashed Password
+   ↓
+Store in DB
+
+Remember:
+- Hash passwords, never store them as plain text.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

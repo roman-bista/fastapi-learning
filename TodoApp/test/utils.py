@@ -5,8 +5,11 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 from TodoApp.main import app
 import pytest
-from ..models import Todos
+from ..models import Todos,Users
 from ..routers.admin import get_db
+from ..routers.auth import bcrypt_context
+
+
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -68,5 +71,28 @@ def test_todo():
     yield todo
 
     db.query(Todos).delete()
+    db.commit()
+    db.close()
+
+@pytest.fixture
+def test_user():
+    user = Users(
+        email="test@test.com",
+        username="roman",
+        first_name="Roman",
+        last_name="Bista",
+        hashed_password=bcrypt_context.hash("roman"),
+        role="admin",
+        phone_number="1234567890"
+    )
+
+    db = TestingSessionLocal()
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    yield user
+
+    db.query(Users).delete()
     db.commit()
     db.close()
