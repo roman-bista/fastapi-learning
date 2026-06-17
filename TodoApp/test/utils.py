@@ -52,7 +52,6 @@ def clean_db():
 @pytest.fixture
 def test_todo():
     db=TestingSessionLocal()
-    print("COUNT BEFORE:", db.query(Todos).count())
 
     todo=Todos(
         title='learn to code',
@@ -65,7 +64,6 @@ def test_todo():
     db.add(todo)
     db.commit()
     db.refresh(todo)
-    print("COUNT AFTER:", db.query(Todos).count())
 
     yield todo
 

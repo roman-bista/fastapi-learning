@@ -2,6 +2,12 @@
 
 # FastAPI Testing Notes
 
+╔════════════════════════════════╗
+║              ║
+╚════════════════════════════════╝
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 PYTEST FIXTURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ---
 
 # Why Testing?
@@ -629,3 +635,37 @@ OVERRIDDEN
 override_get_db()
    ↓
 SQLite Test DB
+
+
+
+<!-- /////////////////////////////////////// -->
+
+╔════════════════════════════════╗
+║  response.json()  
+╚════════════════════════════════╝
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 PYTEST - response.json()
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+response = client.get("/todos/1")
+
+response.json()
+→ Returns API response data (JSON) as a Python dict/list.
+
+Flow:
+Request
+  ↓
+API Route
+  ↓
+JSON Response
+  ↓
+response.json()
+  ↓
+Python dict/list
+
+Examples:
+
+print(response.json())
+
+assert response.json()["title"] == "Learn FastAPI"
+assert response.json() == expected_data
