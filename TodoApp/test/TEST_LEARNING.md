@@ -740,4 +740,47 @@ Store in DB
 
 Remember:
 - Hash passwords, never store them as plain text.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def      → normal function
+async def → async function
+
+Call normal:
+result = func()
+
+Call async:
+result = await func()
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Health Check Route
+✓ Todo Model
+✓ Read Todos
+✓ Read Todo By ID
+✓ Todo Not Found
+✓ Create Todo
+✓ Update Todo
+✓ Update Todo Not Found
+✓ Delete Todo
+✓ Delete Todo Not Found
+
+✓ Admin Read Todos
+✓ Admin Delete Todo
+✓ Admin Delete Todo Not Found
+
+✓ Get User
+✓ Change Password
+✓ Change Password Invalid
+✓ Change Phone Number
+
+✓ authenticate_user()
+✓ authenticate_user() wrong username
+✓ authenticate_user() wrong password
+
+✓ create_access_token()
+✓ get_current_user()
+✓ get_current_user() invalid payload
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

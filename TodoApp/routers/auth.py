@@ -9,6 +9,7 @@ from ..models import Users
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
 from jose import jwt,JWTError
+from typing import Annotated
 
 router = APIRouter(
     prefix='/auth',
@@ -119,15 +120,17 @@ def create_access_token(username: str,user_id: int,role:str ,expires_delta: time
     encode.update({'exp': expires})
 
     return jwt.encode(
-        encode,
+        encode,         #----->eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... this is done by return jwt.encode
         SECRET_KEY,
         algorithm=ALGORITHM)
+
+
 @router.get("/users")
 async def get_users(db: db_dependency):
     users = db.query(Users).all()
     return users
 
-from typing import Annotated
+
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
