@@ -4,10 +4,13 @@ from typing import Annotated
 from .routers import auth, todos, admin, users
 # from pydantic import BaseModel, Field
 # from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, HTTPException, status,Path #Import models so SQLAlchemy knows which tables exist
+from fastapi import FastAPI, Depends, HTTPException, status,Path,Request #Import models so SQLAlchemy knows which tables exist
 from .models import Todos
 from .database import engine, SessionLocal   #Import database connection engine and session factory
 from .models import Base    
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
 
 app=FastAPI()          
 
@@ -20,6 +23,19 @@ Base.metadata.create_all(bind=engine)        #Take all SQLAlchemy models
 # engine = object that knows how to connect to database Engine = connection manager
 # Session = active conversation
 # SessionLocal=Creates database sessions
+
+templates = Jinja2Templates(directory="TodoApp/templates")
+
+app.mount("/static",
+          StaticFiles(directory="TodoApp/static"), 
+          name= "static")
+
+@app.get("/")
+def test(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="home.html"
+    )
 
 @app.get("/healthy")
 def health_check():
