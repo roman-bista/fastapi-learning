@@ -3,10 +3,15 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, HTTPException, status,Path #Import models so SQLAlchemy knows which tables exist
+from fastapi import APIRouter, Depends, HTTPException, status ,Path, Request #Import models so SQLAlchemy knows which tables exist
 from ..models import Todos
 from ..database import SessionLocal   #Import database connection engine and session factory    
 from .auth import get_current_user
+from starlette.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+
+
+templates = Jinja2Templates(directory="TodoApp/templates")
 
 
 router = APIRouter(
@@ -60,6 +65,9 @@ db_dependency = Annotated[Session, Depends(get_db)]
 #think like atm card:Deposit money,Withdraw money,Check balance
 
 user_dependency= Annotated[dict,Depends(get_current_user)] #which tells us who is making the request.
+
+
+
 class TodoRequest(BaseModel):           #BaseModel :automatically provides validation
                                         #TodoRequest:Validation model for incoming todo requests
     title: str = Field(min_length=3)
@@ -68,12 +76,59 @@ class TodoRequest(BaseModel):           #BaseModel :automatically provides valid
     complete: bool
 
 
+def redirect_to_login():
+    redirect_response = RedirectResponse(url="/auth/login-page",status_code=status.HTTP_302_FOUND)
+    redirect_response.delete_cookie(key="access_token")
+    return redirect_response
 
-@router.get("/", status_code=status.HTTP_200_OK)
-async def read_all(user:user_dependency,db: db_dependency, ):
-    if user is None:
-        raise HTTPException(status_code=401,detail="authetication failed")
-    return db.query(Todos).filter(Todos.owner_id==user.get('user_id')).all()                        #SELECT * FROM todos;
+
+
+### Pages ###
+@router.get("/todo-page")
+async def render_todo_page(request: Request, db: db_dependency):
+    try:
+        token = request.cookies.get("access_token")
+
+        if not token:
+            return redirect_to_login()
+
+        user = await get_current_user(token)
+
+        todos = (
+            db.query(Todos)
+            .filter(Todos.owner_id == user.get("user_id"))
+            .all()
+        )
+
+        return templates.TemplateResponse(
+            request=request,
+            name="todo.html",
+            context={
+                "todos": todos,
+                "user": user
+            }
+        )
+
+    except Exception:
+        return redirect_to_login()
+    
+@router.get('/add-todo-page')
+async def add_render_todo_page(request: Request):
+    try:
+        user=await get_current_user(request.cookies.get('access_token'))
+        if user is None:
+            return redirect_to_login()
+        
+        return templates.TemplateResponse(
+            request=request,
+            name="add-todo.html",
+            context={
+                "user": user
+            }
+        )
+    except:
+        return redirect_to_login()
+
 
 @router.get("/{todo_id}", status_code=status.HTTP_200_OK)     #return http 200 on sucess
 async def read_todo(user:user_dependency,db: db_dependency, todo_id: int=Path(gt=0)):
@@ -86,7 +141,18 @@ async def read_todo(user:user_dependency,db: db_dependency, todo_id: int=Path(gt
     
     raise HTTPException(status_code=404, detail="todo does not exist")  #If todo not found,return HTTperroresponse
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+
+### Endpoints###
+
+@router.get("/", status_code=status.HTTP_200_OK)
+async def read_all(user:user_dependency,db: db_dependency, ):
+    if user is None:
+        raise HTTPException(status_code=401,detail="authetication failed")
+    return db.query(Todos).filter(Todos.owner_id==user.get('user_id')).all()                        #SELECT * FROM todos;
+
+
+
+@router.post("/todo", status_code=status.HTTP_201_CREATED)
 async def create_todo(user: user_dependency,db: db_dependency, todo_request: TodoRequest):
     if user is None:
         raise HTTPException(status_code=401,detail="authetication failed")

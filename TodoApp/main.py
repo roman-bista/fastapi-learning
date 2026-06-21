@@ -26,6 +26,29 @@ Base.metadata.create_all(bind=engine)        #Take all SQLAlchemy models
 
 templates = Jinja2Templates(directory="TodoApp/templates")
 
+
+
+@app.middleware("http")
+async def middleware(request: Request, call_next):
+    try:
+        token = request.cookies.get("access_token")
+
+        if token:
+            request.headers.__dict__["_list"].append(
+                (
+                    b"authorization",
+                    f"Bearer {token}".encode(),
+                )
+            )
+
+    except Exception:
+        pass
+
+    response = await call_next(request)
+    return response
+
+
+
 app.mount("/static",
           StaticFiles(directory="TodoApp/static"), 
           name= "static")
