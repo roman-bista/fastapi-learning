@@ -8,9 +8,8 @@ from fastapi import FastAPI, Depends, HTTPException, status,Path,Request #Import
 from .models import Todos
 from .database import engine, SessionLocal   #Import database connection engine and session factory
 from .models import Base    
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-
+from fastapi.responses import RedirectResponse
 
 app=FastAPI()          
 
@@ -24,12 +23,12 @@ Base.metadata.create_all(bind=engine)        #Take all SQLAlchemy models
 # Session = active conversation
 # SessionLocal=Creates database sessions
 
-templates = Jinja2Templates(directory="TodoApp/templates")
+# templates = Jinja2Templates(directory="TodoApp/templates")
 
 
 
 @app.middleware("http")
-async def middleware(request: Request, call_next):
+async def middleware(request: Request, call_next): 
     try:
         token = request.cookies.get("access_token")
 
@@ -55,10 +54,7 @@ app.mount("/static",
 
 @app.get("/")
 def test(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="home.html"
-    )
+    return RedirectResponse(url="/todos/todo-page", status_code=status.HTTP_302_FOUND)
 
 @app.get("/healthy")
 def health_check():
