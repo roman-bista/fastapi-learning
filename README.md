@@ -1,323 +1,271 @@
----
+# 🚀 FastAPI Todo Application
 
-## 📚 What I'm Learning
-
-### ✅ Completed
-- FastAPI setup and project structure
-- GET, POST, PUT, DELETE request methods
-- Path Parameters & Query Parameters
-- Pydantic Models & Request Validation
-- HTTP Status Codes
-- Swagger / OpenAPI Documentation
-
-### 🔄 In Progress
-- SQLAlchemy ORM
-- PostgreSQL Database Integration
-- User Authentication & Authorization
-- Password Hashing (bcrypt)
-- JWT Authentication
+A production-ready Todo Application built while learning backend development with **FastAPI**, **SQLAlchemy**, **PostgreSQL**, **JWT Authentication**, **Pytest**, and **Docker**.
 
 ---
 
-## 🛠️ Tech Stack
+# 📌 Features
 
-| Technology | Purpose |
-|------------|---------|
-| Python | Core language |
-| FastAPI | API Framework |
-| PostgreSQL | Database |
-| SQLAlchemy | ORM |
-| JWT | Authentication |
-| Pydantic | Data Validation |
-
----
-
-## 🔜 Roadmap
-
-- [x] FastAPI Basics & CRUD
-- [ ] Todo App with Database
-- [ ] JWT Authentication System
-- [ ] Full Backend Project
+* User Registration
+* User Login
+* JWT Authentication
+* Password Hashing (bcrypt)
+* Create Todo
+* Read Todos
+* Update Todo
+* Delete Todo
+* User Authorization
+* Admin Routes
+* Database Migrations (Alembic)
+* Unit Testing (Pytest)
+* Dockerized FastAPI Application
+* PostgreSQL with Docker Compose
 
 ---
 
-## 📌 How to Run
+# 🛠 Tech Stack
 
-```bash
-# Clone the repo
-git clone https://github.com/roman-bista/FastApi_Learning.git
+### Backend
 
-# Go to project folder
-cd FastApi_Learning
+* Python 3
+* FastAPI
+* SQLAlchemy
+* Pydantic
+* Uvicorn
 
-# Install dependencies
-pip install fastapi uvicorn sqlalchemy psycopg2
+### Database
 
-# Run any project
-uvicorn main:app --reload
+* PostgreSQL
+* SQLite (during development)
+* Alembic
+
+### Authentication
+
+* JWT
+* OAuth2PasswordBearer
+* Passlib (bcrypt)
+
+### Testing
+
+* Pytest
+* TestClient
+
+### DevOps
+
+* Docker
+* Docker Compose
+* Docker Hub
+
+---
+
+# 📂 Project Structure
+
+```
+FastApi/
+│
+├── TodoApp/
+│   ├── routers/
+│   ├── templates/
+│   ├── static/
+│   ├── database.py
+│   ├── models.py
+│   ├── main.py
+│   └── ...
+│
+├── test/
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── .dockerignore
+├── .gitignore
+├── README.md
+└── alembic.ini
 ```
 
 ---
 
-> 🧠 Learning backend engineering step by step — built with curiosity and consistency.
-
-User Login
-    ↓
-Username + Password
-    ↓
-Verify password
-    ↓
-create_access_token()
-    ↓
-JWT Token
-    ↓
-Client stores token
-------------------------------------------------
-GET /todos
-Authorization: Bearer eyJhbGc...
-    ↓
-OAuth2PasswordBearer
-    ↓
-token = "eyJhbGc..."
-    ↓
-get_current_user()
-    ↓
-jwt.decode()
-    ↓
-payload
-    ↓
-sub + id
-    ↓
-current_user
-    ↓
-/todos route
-
-
-<<-------------------------------------------->><<-------------------------------------------->>
-<<-------------------------------------------->><<-------------------------------------------->>
-
-
-
-USER REGISTRATION
-=================
-
-POST /auth/
-    ↓
-Receive username, password, email
-    ↓
-Hash password using bcrypt
-    ↓
-Store Worker in database
-    ↓
-User created
-
-
---------------------------------------------------
-
-
-USER LOGIN
-==========
-
-POST /auth/token
-    ↓
-Receive username + password
-    ↓
-Find Worker in database
-    ↓
-Verify password using bcrypt
-    ↓
-If invalid
-    ↓
-401 Unauthorized
-
-If valid
-    ↓
-create_access_token()
-    ↓
-Calculate expiration time
-    ↓
-Create payload
-
-{
-    "sub": username,
-    "id": user_id,
-    "exp": expires
-}
-
-    ↓
-jwt.encode(
-    payload,
-    SECRET_KEY,
-    algorithm=ALGORITHM
-)
-
-    ↓
-JWT Token Generated
-
-eyJhbGciOiJIUzI1NiIs...
+# 🚀 Getting Started
 
-    ↓
-Return
+## 1. Clone the Repository
 
-{
-    "access_token": "...",
-    "token_type": "bearer"
-}
+```bash
+git clone https://github.com/roman-bista/<YOUR_REPOSITORY>.git
+cd <YOUR_REPOSITORY>
+```
 
-    ↓
-Client stores JWT
+---
 
+## 2. Create Virtual Environment
 
---------------------------------------------------
+```bash
+python -m venv .venv
+```
 
+Activate it:
 
-PROTECTED REQUEST
-=================
+### Windows
 
-GET /todos
-Authorization: Bearer eyJhbGc...
+```bash
+.venv\Scripts\activate
+```
 
-    ↓
-Request arrives
+### macOS / Linux
 
-    ↓
-OAuth2PasswordBearer
+```bash
+source .venv/bin/activate
+```
 
-Authorization: Bearer eyJhbGc...
-                ↓
-Extract token
-                ↓
+---
 
-token = "eyJhbGc..."
+## 3. Install Dependencies
 
-    ↓
-Pass token to
+```bash
+pip install -r requirements.txt
+```
 
-get_current_user(token)
+---
 
-    ↓
-jwt.decode(
-    token,
-    SECRET_KEY,
-    algorithms=[ALGORITHM]
-)
+## 4. Run the Application
 
-    ↓
-Verify Signature
+```bash
+uvicorn TodoApp.main:app --reload
+```
 
-Is SECRET_KEY valid?
-    ↓
-Yes / No
+Visit:
 
-    ↓
-Check Expiration
+```
+http://127.0.0.1:8000/docs
+```
 
-exp > current_time ?
-    ↓
-Yes / No
+---
 
-    ↓
-Decode Payload
+# 🐳 Running with Docker Compose
 
-{
-    "sub": "roman",
-    "id": 1,
-    "exp": ...
-}
+Build the application:
 
-    ↓
-Extract Values
+```bash
+docker compose build
+```
 
-username = payload.get("sub")
-user_id = payload.get("id")
+Start the application:
 
-    ↓
-Check
+```bash
+docker compose up
+```
 
-username is None?
-user_id is None?
+Run in background:
 
-    ↓
-If invalid
-401 Unauthorized
+```bash
+docker compose up -d
+```
 
-    ↓
-If valid
+Stop containers:
 
-return {
-    "username": username,
-    "user_id": user_id
-}
+```bash
+docker compose down
+```
 
-    ↓
-current_user
+---
 
+# 📦 Docker Images
 
---------------------------------------------------
+The application is available as a Docker image on Docker Hub.
 
+Example:
 
-AUTHORIZATION
-=============
+```bash
+docker pull roman49/todoapp-docker:latest
+```
 
-Route receives:
+---
 
-current_user = Depends(
-    get_current_user
-)
+# 🗄 Database
 
-    ↓
+Development:
 
-{
-    "username": "roman",
-    "user_id": 1
-}
+* SQLite
 
-    ↓
+Docker:
 
-Filter todos
+* PostgreSQL 16
 
-db.query(Todos).filter(
-    Todos.owner_id ==
-    current_user["user_id"]
-)
+ORM:
 
-    ↓
+* SQLAlchemy
 
-Roman only sees Roman's todos
+Migration Tool:
 
+* Alembic
 
---------------------------------------------------
+---
 
+# 🔐 Authentication
 
-COMPLETE JWT FLOW
-=================
+The application uses:
 
-Login
-    ↓
-Verify Credentials
-    ↓
-Create JWT
-    ↓
-Return JWT
-    ↓
-Client Stores JWT
-    ↓
-Client Sends JWT
-    ↓
-OAuth2PasswordBearer Extracts JWT
-    ↓
-get_current_user()
-    ↓
-Verify SECRET_KEY Signature
-    ↓
-Check Expiration
-    ↓
-Decode Payload
-    ↓
-Get Username + User ID
-    ↓
-Identify Current User
-    ↓
-Authorize Request
-    ↓
-Allow Access
+* JWT Access Tokens
+* OAuth2PasswordBearer
+* Password Hashing with bcrypt
+
+---
+
+# 🧪 Testing
+
+Run tests:
+
+```bash
+pytest
+```
+
+---
+
+# 📖 What I Learned
+
+* Python Backend Development
+* FastAPI Fundamentals
+* REST API Design
+* CRUD Operations
+* SQLAlchemy ORM
+* PostgreSQL
+* Alembic Migrations
+* JWT Authentication
+* Dependency Injection
+* Pytest
+* Docker
+* Docker Compose
+* Docker Networking
+* Docker Volumes
+* Docker Hub
+
+---
+
+# 🗺 Learning Roadmap
+
+* ✅ Python
+* ✅ Git & GitHub
+* ✅ FastAPI
+* ✅ SQLAlchemy
+* ✅ SQLite
+* ✅ PostgreSQL
+* ✅ Alembic
+* ✅ JWT Authentication
+* ✅ Testing (Pytest)
+* ✅ Docker
+* ✅ Docker Compose
+* ✅ Docker Hub
+* ⏳ Deployment
+* ⏳ CI/CD
+* ⏳ Redis
+* ⏳ Production Architecture
+* ⏳ Kubernetes
+
+---
+
+# 👨‍💻 Author
+
+**Roman Bista**
+
+Backend Developer | FastAPI | Python | PostgreSQL | Docker
+
+GitHub: https://github.com/roman-bista
