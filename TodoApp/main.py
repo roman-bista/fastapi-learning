@@ -10,6 +10,9 @@ from .database import engine, SessionLocal   #Import database connection engine 
 from .models import Base    
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 app=FastAPI()          
 
@@ -49,8 +52,8 @@ async def middleware(request: Request, call_next):
 
 
 app.mount("/static",
-          StaticFiles(directory="TodoApp/static"), 
-          name= "static")
+          StaticFiles(directory=str(BASE_DIR / "static")), 
+          name="static")
 
 @app.get("/")
 def test(request: Request):

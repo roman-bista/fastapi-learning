@@ -11,12 +11,16 @@ from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
 from jose import jwt,JWTError
 from typing import Annotated
 from fastapi.templating import Jinja2Templates
+from pathlib import Path
 
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
 
 )
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = BASE_DIR / 'templates'
 
 # SECRET_KEY = '4ec6ceeb3c696443565ac482ff0a6ca323bafd75110a69e485728b7c10b50a23'
 # ALGORITHM = 'HS256'
@@ -83,7 +87,7 @@ db_dependency = Annotated[Session, Depends(get_db)]     #FastAPI:
                                                         # ↓
                                                         # Inject it into db variable
 
-templates = Jinja2Templates(directory="TodoApp/templates")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 ###pages###
 @router.get("/login-page")
