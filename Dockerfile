@@ -1,32 +1,13 @@
-services:
-  postgres:
-    image: postgres:16
-    container_name: postgres-db
+FROM python:3.12-slim
 
-    restart: always
+WORKDIR /app
 
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: roman
-      POSTGRES_DB: TodoApplicationDatabase
+COPY requirements.txt .
 
-    ports:
-      - "5432:5432"
+RUN pip install --no-cache-dir -r requirements.txt
 
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+COPY . .
 
-  fastapi:
-    build: .
-    container_name: fastapi-app
+EXPOSE 8000
 
-    restart: always
-
-    depends_on:
-      - postgres
-
-    ports:
-      - "8000:8000"
-
-volumes:
-  postgres_data:
+CMD ["uvicorn", "TodoApp.main:app", "--host", "0.0.0.0", "--port", "8000"]

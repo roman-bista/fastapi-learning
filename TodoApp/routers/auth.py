@@ -18,8 +18,17 @@ router = APIRouter(
 
 )
 
-SECRET_KEY = '4ec6ceeb3c696443565ac482ff0a6ca323bafd75110a69e485728b7c10b50a23'
-ALGORITHM = 'HS256'
+# SECRET_KEY = '4ec6ceeb3c696443565ac482ff0a6ca323bafd75110a69e485728b7c10b50a23'
+# ALGORITHM = 'HS256'
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 bcrypt_context= CryptContext(schemes=['bcrypt'], deprecated='auto')
 

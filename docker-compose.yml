@@ -1,10 +1,7 @@
 services:
-
   postgres:
     image: postgres:16
-
     container_name: postgres-db
-
     restart: always
 
     environment:
@@ -18,15 +15,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-
   fastapi:
-
     build: .
-
     container_name: fastapi-app
 
     depends_on:
       - postgres
+
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
 
     ports:
       - "8000:8000"
