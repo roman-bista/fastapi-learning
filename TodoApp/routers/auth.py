@@ -1,7 +1,7 @@
 from datetime import timedelta,datetime,timezone
 # from time import timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from ..database import SessionLocal
@@ -109,8 +109,30 @@ def authenticate_user(username: str, password: str,db):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(db: db_dependency,create_user_request: CreateUserRequest):
-    
+async def create_user(
+    db: db_dependency,
+    username: str = Form(None),
+    email: str = Form(None),
+    first_name: str = Form(None),
+    last_name: str = Form(None),
+    password: str = Form(None),
+    role: str = Form(None),
+    phone_number: str = Form(None),
+    create_user_request: CreateUserRequest | None = None,
+):
+    if create_user_request is None:
+        if not all([username, email, first_name, last_name, password, role, phone_number]):
+            raise HTTPException(status_code=400, detail="All fields are required")
+        create_user_request = CreateUserRequest(
+            username=username,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            password=password,
+            role=role,
+            phone_number=phone_number,
+        )
+
     existing_user = db.query(Users).filter(Users.username == create_user_request.username).first()
 
     if existing_user:
